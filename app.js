@@ -5,26 +5,22 @@ import _ from 'lodash';
 
 const container = document.getElementById('app');
 
-/*
-0   |  |  |  |
-1   |--|  |  |
-2   |  |--|  |
-3   |  |  |--|
-4   |  |--|  |
-5   |--|  |  |
-6   |  |--|  |
-7   |  |  |--|
-8   |  |  |  |
-9   |  |  |  |
-10  |--|  |  |
- */
+function ladderGenerator(n) {
+  const shuffledSteps = _.shuffle(_.flatMap(_.range(0, n-1), line =>
+    _.map(_.range(1, 11), step => [line, step])));
 
-const ladderMap = [
-  [1, 5, 10],
-  [2, 4, 6],
-  [3, 7],
-  []
-];
+  var ladder = _.map(_.fill(Array(n), 0), () => []);
+
+  _.take(shuffledSteps, 3*n).forEach(a => {
+    const line = a[0];
+    const step = a[1];
+    if ((line == 0 || !_.includes(ladder[line - 1], step))
+       && (line >= n-2 || !_.includes(ladder[line + 1], step))) {
+      ladder[line].push(step);
+    }
+  });
+  return _.map(ladder, line => _.sortBy(line));
+}
 
 function ladderSolver(ladderMap, start) {
   const xs = ladderMap.length;
@@ -67,15 +63,12 @@ function ladderSolver(ladderMap, start) {
   return solved;
 }
 
+var ladder = ladderGenerator(4);
+
 ReactDOM.render(
   <Ladder
-    ladders={ladderMap}
+    ladders={ladder}
     ladderSolver={ladderSolver}
-    x={10}
-    y={10}
-    top={10}
-    n={6}
-    bottom={10}
     height={300}
     width={300}/>
   , container);
