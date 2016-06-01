@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 
 const PADDING = 50;
 const WIDTH = 50;
 const V_STEP = 20;
 
 const XPADDING = 20;
-const YPADDING = 20;
+const YPADDING = 40;
 const LINE_WIDTH = 4;
 
 const lineProp = {
@@ -13,6 +14,19 @@ const lineProp = {
   strokeWidth: LINE_WIDTH
 };
 
+const LadderHead = (props) => {
+  const x = XPADDING + props.e.XSTEP * props.x;
+  const y = YPADDING - 10;
+  return (
+    <g>
+      <circle
+        onClick={e => props.onChange && props.onChange(props.x)}
+        cx={x} cy={y} r={10}
+        strokeWidth={0} fill='gray'
+        />
+    </g>
+  );
+};
 const LadderVLine = (props)=>{
 
   const x = XPADDING + props.e.XSTEP * props.x;
@@ -20,9 +34,9 @@ const LadderVLine = (props)=>{
   const y2 = YPADDING + props.e.YSTEP * props.bottom;
   return (
     <g>
-      <line onClick={e => props.onChange && props.onChange(props.x)} {...lineProp} x1={x} x2={x} y1={y1} y2={y2} {...props} />
+      <line {...lineProp} x1={x} x2={x} y1={y1} y2={y2} {...props} />
         {
-          props.line && props.line.map(y => (
+          props.steps && props.steps.map(y => (
             <LadderHLine top={props.top} x={props.x} y={y} key={y} e={props.e}/>
         ))
       }
@@ -65,10 +79,6 @@ props.height / props.width
 // YSTEP = (props.height - YPADDING*2 - ys*LINE_WIDTH) / (ys-1);
 // ys = maxY + 1
 
-function arrayMax(arr) {
-  return Math.max.apply(null, arr);
-}
-
 export default class Ladder extends Component {
   constructor(props) {
     super(props);
@@ -83,7 +93,7 @@ export default class Ladder extends Component {
       && props.ladders.length > 1
       && props.ladders[props.ladders.length - 1].length === 0) {
 
-      const ys = arrayMax(props.ladders.map(arrayMax)) + 1;
+      const ys = _.max(_.flatten(props.ladders)) + 1;
       const xs = props.ladders.length;
       const XSTEP = Math.floor((props.width  - XPADDING*2 - xs*LINE_WIDTH) / (xs-1));
       const YSTEP = Math.floor((props.height - YPADDING*2 - ys*LINE_WIDTH) / (ys-1));
@@ -113,7 +123,7 @@ export default class Ladder extends Component {
     var y = 0;
     var path = [];
     solved.forEach((n, i) => {
-      path.push(<LadderVLine top={y} bottom={n.y} x={x} stroke="red" key={i} e={this.e} />);
+      path.push(<LadderVLine top={y} bottom={n.y} x={x} stroke="red" key={'v'+i} e={this.e} />);
       path.push(<LadderHLine top={y} x={Math.min(x, n.to)} y={n.y} stroke="red" key={'h'+i} e={this.e} />);
       y = n.y;
       x = n.to;
@@ -129,15 +139,20 @@ export default class Ladder extends Component {
 
   renderLadder() {
     return (
-      this.props.ladders.map((line, i) => (
-        <LadderVLine
-          onChange={n => this.setState({start:n})}
-          top={0}
-          bottom={this.ys}
-          x={i}
-          line={line}
-          key={i}
-          e={this.e}/>
+      this.props.ladders.map((steps, i) => (
+        <g key={i}>
+          <LadderHead
+            onChange={n => this.setState({start:n})}
+            x={i}
+            e={this.e}/>
+          <LadderVLine
+            onChange={n => this.setState({start:n})}
+            top={0}
+            bottom={this.ys}
+            x={i}
+            steps={steps}
+            e={this.e}/>
+        </g>
       ))
     );
   }

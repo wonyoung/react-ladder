@@ -69,6 +69,6 @@ ReactDOM.render(
   <Ladder
     ladders={ladder}
     ladderSolver={ladderSolver}
-    height={300}
-    width={300}/>
+    height={500}
+    width={400}/>
   , container);
