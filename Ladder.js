@@ -14,6 +14,13 @@ const lineProp = {
   strokeWidth: LINE_WIDTH
 };
 
+function X(x, e) {
+  return XPADDING + e.XSTEP * x;
+}
+function Y(y, e) {
+  return YPADDING + e.YSTEP * y;
+}
+
 const LadderHead = (props) => {
   const x = XPADDING + props.e.XSTEP * props.x;
   const y = YPADDING - 10;
@@ -119,23 +126,25 @@ export default class Ladder extends Component {
   renderPath(start) {
     if (start < 0) return <g></g>;
     const solved = this.props.ladderSolver(this.props.ladders, start);
+
     var x = start;
     var y = 0;
-    var path = [];
+    var path = 'M'+X(start, this.e)+' '+Y(0, this.e);
     solved.forEach((n, i) => {
-      path.push(<LadderVLine top={y} bottom={n.y} x={x} stroke="red" key={'v'+i} e={this.e} />);
-      path.push(<LadderHLine top={y} x={Math.min(x, n.to)} y={n.y} stroke="red" key={'h'+i} e={this.e} />);
+      path += ' V'+Y(n.y, this.e);
+      path += ' H'+X(n.to, this.e);
       y = n.y;
       x = n.to;
     });
-    path.push(<LadderVLine top={y} bottom={this.ys} x={x} stroke="red" key={'end'} e={this.e} />);
+    path += ' V'+Y(this.ys, this.e);
 
     return (
       <g>
-        { path }
+        <path d={path} {...lineProp} fill='none' stroke='red' key={start}/>
       </g>
     );
   }
+
 
   renderLadder() {
     return (

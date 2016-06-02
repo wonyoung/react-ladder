@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import Ladder from './Ladder';
 import _ from 'lodash';
 
+import './app.css';
+
 const container = document.getElementById('app');
 
 function ladderGenerator(n) {

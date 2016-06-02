@@ -17,8 +17,10 @@
   },
   "homepage": "https://github.com/wonyoung/react-ladder#readme",
   "dependencies": {
+    "css-loader": "^0.23.1",
     "react": "^15.1.0",
-    "react-dom": "^15.1.0"
+    "react-dom": "^15.1.0",
+    "style-loader": "^0.13.1"
   },
   "devDependencies": {
     "babel-core": "^6.9.1",
