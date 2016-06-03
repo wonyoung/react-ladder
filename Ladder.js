@@ -79,53 +79,89 @@ props.height / props.width
  */
 // const XPADDING = 20;
 // const YPADDING = 20;
-// this.n = props.ladders.length;
 // widthTotal = n*LINE_WIDTH + (n-1)*XSTEP;
 // widthTotal = props.width - XPADDING*2;
 // XSTEP = (props.width - XPADDING*2 - n*LINE_WIDTH) / (n-1);
 // YSTEP = (props.height - YPADDING*2 - ys*LINE_WIDTH) / (ys-1);
 // ys = maxY + 1
 
+class InputPlayerNumber extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      input:''
+    };
+
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleInputChange(e) {
+    const input = e.nativeEvent.target.value;
+    this.setState({input});
+  }
+
+  handleSubmit(e) {
+    this.props.onChange && this.props.onChange(parseInt(this.state.input));
+    e.preventDefault();
+  }
+
+  render() {
+    return (
+      <div>
+        <form onSubmit={this.handleSubmit}>
+          <input
+            type='number'
+            min={2}
+            max={20}
+            value={this.state.input}
+            onChange={this.handleInputChange}/>
+        </form>
+      </div>
+    );
+  }
+}
+
 export default class Ladder extends Component {
   constructor(props) {
     super(props);
-    this.init(props);
     this.state = {
+      ready: false,
+      ladder: [],
       start: -1
     };
   }
 
-  init(props) {
-    if (props.ladders
-      && props.ladders.length > 1
-      && props.ladders[props.ladders.length - 1].length === 0) {
+  componentDidMount() {
+    this.init(3);
+  }
 
-      const ys = _.max(_.flatten(props.ladders)) + 1;
-      const xs = props.ladders.length;
-      const XSTEP = Math.floor((props.width  - XPADDING*2 - xs*LINE_WIDTH) / (xs-1));
-      const YSTEP = Math.floor((props.height - YPADDING*2 - ys*LINE_WIDTH) / (ys-1));
+  init(n) {
+    const { width, height } = this.props;
 
-      this.top = YPADDING;
-      this.bottom = props.height - YPADDING*2;
-      this.ys = ys;
-      this.xs = xs;
+    const ladder = this.props.ladderGenerator(n);
 
-      this.e = {
-        XSTEP,
-        YSTEP
-      };
-      console.log('e: ', this.e);
+    const ys = _.max(_.flatten(ladder)) + 1;
+    const xs = n;
+    const XSTEP = Math.floor((width  - XPADDING*2 - xs*LINE_WIDTH) / (xs-1));
+    const YSTEP = Math.floor((height - YPADDING*2 - ys*LINE_WIDTH) / (ys-1));
 
-      this.enabled = true;
-    }
-    else {
-      this.enabled = false;
-    }
+    this.top = YPADDING;
+    this.bottom = height - YPADDING*2;
+    this.ys = ys;
+    this.xs = xs;
+
+    this.e = {
+      XSTEP,
+      YSTEP
+    };
+
+    this.setState({ready:true, ladder, start: -1});
   }
 
   renderPath(start) {
     if (start < 0) return <g></g>;
-    const solved = this.props.ladderSolver(this.props.ladders, start);
+    const solved = this.props.ladderSolver(this.state.ladder, start);
 
     var x = start;
     var y = 0;
@@ -145,10 +181,9 @@ export default class Ladder extends Component {
     );
   }
 
-
   renderLadder() {
     return (
-      this.props.ladders.map((steps, i) => (
+      this.state.ladder.map((steps, i) => (
         <g key={i}>
           <LadderHead
             onChange={n => this.setState({start:n})}
@@ -167,11 +202,11 @@ export default class Ladder extends Component {
   }
 
   render() {
-    console.log(this.state);
     return (
       <div>
+        <InputPlayerNumber onChange={n => this.init(n)}/>
       {
-        this.enabled ?
+        this.state.ready ?
           <svg width={this.props.width} height={this.props.height}>
             {this.renderLadder()}
             {this.renderPath(this.state.start)}

@@ -65,12 +65,10 @@ function ladderSolver(ladderMap, start) {
   return solved;
 }
 
-var ladder = ladderGenerator(4);
-
 ReactDOM.render(
   <Ladder
-    ladders={ladder}
     ladderSolver={ladderSolver}
+    ladderGenerator={ladderGenerator}
     height={500}
     width={400}/>
   , container);
